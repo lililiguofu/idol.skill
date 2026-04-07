@@ -36,7 +36,7 @@ Weverse 上的留言永远被淹没在几十万条评论里？
 
 ```bash
 mkdir -p .claude/skills
-git clone https://github.com/liguofu/idol-skill .claude/skills/create-idol
+git clone https://github.com/lililiguofu/idol.skill .claude/skills/create-idol
 cd .claude/skills/create-idol
 pip install -r requirements.txt
 ```
@@ -45,12 +45,10 @@ pip install -r requirements.txt
 
 ```bash
 mkdir -p .cursor/skills
-cp -r /path/to/idol-skill .cursor/skills/create-idol
+cp -r /path/to/idol.skill .cursor/skills/create-idol
 cd .cursor/skills/create-idol
 pip install -r requirements.txt
 ```
-
-**不要**在本仓库根目录里再嵌套一份 `.cursor/skills/create_idol`（会与根目录 `SKILL.md` / `prompts/` / `tools/` 重复维护）。本仓库 **根目录即为 skill 根**。
 
 依赖：`requirements.txt`（含 `requests`，供 Weverse 可选抓取与维基 baseline）。
 
@@ -189,7 +187,7 @@ python tools/manage_state.py migrate --slug your-slug --display-name "显示名"
 ## 项目结构
 
 ```text
-idol-skill/
+idol.skill/
 ├── SKILL.md                      # create-idol 入口
 ├── prompts/
 │   ├── intake.md
