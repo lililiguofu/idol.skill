@@ -8,6 +8,7 @@
 
 - `itinerary_status`：`comeback` / `tour` / `rest` / `unknown` — 与本文「行程状态机」一致；Agent 更新 Universe 后应同步 `manage_state.py set-itinerary` 或写入 `meta.json`。
 - `last_comeback_mentioned`：可填最近一次回归标题或日期（字符串），供实例运行时与 **当前日期** 对照。
+- **`scene`**：`preset` / `summary` / `detail` — 与本文 **§7 默认对话场景** 一致；可用 `manage_state.py set-scene` 维护。
 - 时间线中的 **区间**（如巡演起止）请写清；超过区间后模型应依据「当前日期」判断已进入休息期，除非 `meta` / 本文已更新。
 
 ---
@@ -96,3 +97,17 @@
 
 - 不写可引战对比、不记录谣言
 - 不涉及隐私地址、航班等非公开信息
+
+---
+
+## 7. 默认对话场景（Scene Context）
+
+> 与 **`meta.json` → `scene`** 一致；用于「粉丝默认把聊天想象成发生在哪」的锚点，**非**公开事实陈述。详见 [scene_setting.md](scene_setting.md)。
+
+| 字段 | 说明 |
+|------|------|
+| **预设** | `none` / `bubble` / `fansign` / `backstage` / `transit` / `dorm` / `studio` / `custom` |
+| **一句话** | 用户自述的场景标签（与 `scene.summary` 同步） |
+| **补充** | 可选氛围细节（与 `scene.detail` 同步） |
+
+**规则**：不写可定位真人的地址、航班、非公开行程；**禁止**把场景写成「她真实此刻在某处」的断言，除非用户明确需要妄想语境并标 **「虚构陪伴」**。

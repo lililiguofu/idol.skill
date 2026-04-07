@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""meta.json CRUD, backup, and migrate legacy nested idol layouts."""
+"""meta.json CRUD, backup, scene presets, and migrate legacy nested idol layouts."""
 
 from __future__ import annotations
 
@@ -13,6 +13,16 @@ SCHEMA_VERSION = 1
 
 CORPUS_KEYS = ("bubble", "weverse", "fansign", "social", "memory")
 ITINERARY = ("comeback", "tour", "rest", "unknown")
+SCENE_PRESETS = (
+    "none",
+    "bubble",
+    "fansign",
+    "backstage",
+    "transit",
+    "dorm",
+    "studio",
+    "custom",
+)
 
 
 def repo_root() -> Path:
@@ -21,6 +31,10 @@ def repo_root() -> Path:
 
 def utc_now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+def default_scene() -> dict:
+    return {"preset": "none", "summary": "", "detail": ""}
 
 
 def default_meta(slug: str, display_name: str) -> dict:
@@ -34,6 +48,7 @@ def default_meta(slug: str, display_name: str) -> dict:
         "last_comeback_mentioned": None,
         "corpus_weights": {k: 0 for k in CORPUS_KEYS},
         "current_mood": "",
+        "scene": default_scene(),
         "warnings": {"low_corpus_purity": False, "messages": []},
     }
 
@@ -69,6 +84,7 @@ def cmd_touch(args: argparse.Namespace) -> None:
     if not meta_path.is_file():
         raise SystemExit(f"Not found: {meta_path}")
     data = load_meta(meta_path)
+    _ensure_scene(data)
     save_meta(meta_path, data)
     print(f"updated_at refreshed: {meta_path}")
 
@@ -91,6 +107,43 @@ def cmd_set_mood(args: argparse.Namespace) -> None:
     data["current_mood"] = args.text
     save_meta(meta_path, data)
     print(f"Updated current_mood: {meta_path}")
+
+
+def _ensure_scene(data: dict) -> dict:
+    if "scene" not in data or not isinstance(data.get("scene"), dict):
+        data["scene"] = default_scene()
+        return data["scene"]
+    s = data["scene"]
+    for k, v in default_scene().items():
+        s.setdefault(k, v)
+    return s
+
+
+def cmd_set_scene(args: argparse.Namespace) -> None:
+    meta_path = repo_root() / "idols" / args.slug / "meta.json"
+    if not meta_path.is_file():
+        raise SystemExit(f"Not found: {meta_path}")
+    data = load_meta(meta_path)
+    scene = _ensure_scene(data)
+    if args.clear:
+        cleared = default_scene()
+        scene.clear()
+        scene.update(cleared)
+    else:
+        if args.preset is None:
+            raise SystemExit("Use --preset … or --clear")
+        if args.preset not in SCENE_PRESETS:
+            raise SystemExit(f"preset must be one of: {SCENE_PRESETS}")
+        if args.preset == "custom" and not (args.summary or "").strip():
+            raise SystemExit("preset=custom requires non-empty --summary")
+        scene["preset"] = args.preset
+        if args.summary is not None:
+            scene["summary"] = args.summary
+        if args.detail is not None:
+            scene["detail"] = args.detail
+    save_meta(meta_path, data)
+    print(f"Updated scene: {meta_path}")
+    print(json.dumps(data["scene"], ensure_ascii=False, indent=2))
 
 
 def cmd_record_corpus(args: argparse.Namespace) -> None:
@@ -182,6 +235,26 @@ def main() -> None:
     p_mood.add_argument("--slug", required=True)
     p_mood.add_argument("--text", required=True)
     p_mood.set_defaults(func=cmd_set_mood)
+
+    p_scene = sub.add_parser(
+        "set-scene",
+        help="Set imagined dialogue scene (preset + summary/detail); use --clear to reset",
+    )
+    p_scene.add_argument("--slug", required=True)
+    p_scene.add_argument(
+        "--preset",
+        default=None,
+        choices=list(SCENE_PRESETS),
+        help="Scene preset; required unless --clear",
+    )
+    p_scene.add_argument("--summary", default=None, help="One-line scene label (e.g. 签售结束回酒店路上)")
+    p_scene.add_argument("--detail", default=None, help="Optional longer free-text scene notes")
+    p_scene.add_argument(
+        "--clear",
+        action="store_true",
+        help="Reset scene to none with empty summary/detail",
+    )
+    p_scene.set_defaults(func=cmd_set_scene)
 
     p_rc = sub.add_parser("record-corpus", help="Increment corpus weight counter")
     p_rc.add_argument("--slug", required=True)

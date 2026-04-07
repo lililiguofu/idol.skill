@@ -25,6 +25,7 @@ Skill **根目录** = 本仓库根目录（若安装在 `.claude/skills/create-i
 | **人设逆向** | `从泡泡提取人设`、`Persona Analyzer`、`/analyze-persona {slug}`（见 [prompts/persona_analyzer.md](prompts/persona_analyzer.md)） |
 | 列表 | `/list-idols` |
 | 模式 | `/{slug}-bubble`、`/{slug}-fansign`（对话中识别即可） |
+| **场景** | 更新 `meta.json` 的 `scene`：`python tools/manage_state.py set-scene --slug {slug} --preset <preset> --summary "…"`（见 [prompts/scene_setting.md](prompts/scene_setting.md)） |
 | 删除 | `/delete-idol {slug}`（确认后物理删除 `./idols/{slug}/`） |
 
 ## 工具映射（Bash / 终端）
@@ -41,7 +42,7 @@ Skill **根目录** = 本仓库根目录（若安装在 `.claude/skills/create-i
 | 公开 baseline（维基摘要） | `python tools/baseline_public.py --title "<词条>" --output <json>` |
 | 旧目录迁移 | `python tools/manage_state.py migrate --slug <slug>` |
 
-`manage_state.py` 子命令：`init`、`touch`、`set-itinerary`、`set-mood`、`record-corpus`、`set-warning`、`backup`、`migrate`。
+`manage_state.py` 子命令：`init`、`touch`、`set-itinerary`、`set-mood`、`set-scene`、`record-corpus`、`set-warning`、`backup`、`migrate`。
 
 图片/PDF 物料先用 **Read** 工具阅读或让用户导出为 `.txt`。
 
@@ -57,7 +58,7 @@ Skill **根目录** = 本仓库根目录（若安装在 `.claude/skills/create-i
 
 ### Step 1 — 基础信息 + 粉丝向（见 intake）
 
-按 [prompts/intake.md](prompts/intake.md)：**Step 1** 用户只给 **检索锚点**（艺名等）；**Agent 须主动联网检索 + 可选 `baseline_public.py`** 填齐组合/出道/粉丝名等公开信息，**不得**默认让用户背诵百科；歧义时让用户点选。**Step 1b** 粉丝成分 / 编年史 / 共识与私有投射 / 逆境档案 / 营业生物钟（可部分跳过）。汇总后请用户确认。
+按 [prompts/intake.md](prompts/intake.md)：**Step 1** 用户只给 **检索锚点**（艺名等）；**Agent 须主动联网检索 + 可选 `baseline_public.py`** 填齐组合/出道/粉丝名等公开信息，**不得**默认让用户背诵百科；歧义时让用户点选。**Step 1b** 粉丝成分 / 编年史 / 共识与私有投射 / 逆境档案 / 营业生物钟（可部分跳过）。**Step 1c（可选）** 场景设定（想象锚点）见 [prompts/scene_setting.md](prompts/scene_setting.md)。汇总后请用户确认。
 
 ### Step 2 — 物料导入
 
@@ -65,17 +66,17 @@ Skill **根目录** = 本仓库根目录（若安装在 `.claude/skills/create-i
 
 ### Step 3 — 双轨分析
 
-- **Fandom Universe**：按 [prompts/build_universe.md](prompts/build_universe.md) 整理；与 `meta.json` 行程字段对齐。
+- **Fandom Universe**：按 [prompts/build_universe.md](prompts/build_universe.md) 整理；与 `meta.json` 行程字段及 **`scene`**（若 intake 有场景设定）对齐。
 - **Persona**：先按 [prompts/persona_analyzer.md](prompts/persona_analyzer.md) 从原材料做**灵魂逆向工程**（表达基因、营业情绪、依恋类型、标签→行为规则、MBTI 启发式），再按 [prompts/build_persona.md](prompts/build_persona.md) 落盘；泡泡风格细节以工具 JSON 为准（含 Layer 5；Layer 1–3 为底层 Read-Only，见该文件）。
 
 ### Step 4 — 预览摘要
 
-展示 Universe / Persona / **meta** 摘要；若 `warnings.low_corpus_purity` 为 true，**必须**向用户展示警告。
+展示 Universe / Persona / **meta** 摘要（含 **`scene`**，若已设置）；若 `warnings.low_corpus_purity` 为 true，**必须**向用户展示警告。
 
 ### Step 5 — 写入磁盘
 
-1. 确保 `idols/{slug}/` 存在，并写入 **`meta.json`**（可用 `python tools/manage_state.py init --slug {slug} --display-name "{name}"` 后再编辑）。
-2. 写入 **`universe.md`**、**`persona.md`**（扁平路径，勿嵌套 `universe/` 子目录）。
+1. 确保 `idols/{slug}/` 存在，并写入 **`meta.json`**（可用 `python tools/manage_state.py init --slug {slug} --display-name "{name}"` 后再编辑）；若 intake 填了场景，写入 **`scene`** 或执行 `set-scene`。
+2. 写入 **`universe.md`**（含 §7 场景，若适用）、**`persona.md`**（扁平路径，勿嵌套 `universe/` 子目录）。
 3. 按 [prompts/instance_skill_template.md](prompts/instance_skill_template.md) 写入 **`SKILL.md`**（含时间协议与 `meta.json` 引用）。
 4. 刷新 `updated_at`：`python tools/manage_state.py touch --slug {slug}`。
 
@@ -83,7 +84,7 @@ Skill **根目录** = 本仓库根目录（若安装在 `.claude/skills/create-i
 
 **实例 SKILL.md**：须包含「当前日期以对话当日 YYYY-MM-DD 为准」的协议，**不**写死部署当天日期；详见模板文件。
 
-完成后告知：`/{slug}` 可召唤；并提示管理命令（list / bubble / fansign / delete）。
+完成后告知：`/{slug}` 可召唤；并提示管理命令（list / bubble / fansign / set-scene / delete）。
 
 ## 进化模式
 

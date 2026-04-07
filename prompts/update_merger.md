@@ -16,6 +16,7 @@
 - **大屏共识**：新专、新梗、新口号（与 1v1 私有投射区分）
 - 行程状态机：新专、打歌、巡演、公开综艺等（仅用户或公开来源）
 - 造型/概念关键词（用户描述即可）
+- **场景设定**：若用户变更「默认聊天想象」，更新 **`universe.md` §7** 与 **`meta.json` → `scene`**（或 `manage_state.py set-scene`）
 - 同步 **`meta.json`**：`itinerary_status`、`last_comeback_mentioned`（如适用）、`updated_at`
 
 ## 3. 更新 Persona（严格分层）

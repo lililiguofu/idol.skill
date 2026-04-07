@@ -88,6 +88,26 @@
 
 ---
 
+## Step 1c：场景设定（可选 · 想象锚点）
+
+> **目的**：指定你默认**想象「此刻在哪聊天」**（后台、路上、宿舍氛围等），写入 `meta.json` 的 `scene` 与 `universe.md` §7；实例运行时叠一层环境感，**不**替代 `-bubble` / `-fansign` 模式分流。详见 [scene_setting.md](scene_setting.md)。
+
+### 问卷（可全跳过）
+
+| 字段 | 含义 | 例 |
+|------|------|-----|
+| **场景预设** `{scene_preset}` | 下拉式标签 | `none` / `bubble` / `fansign` / `backstage` / `transit` / `dorm` / `studio` / `custom` |
+| **一句话场景** `{scene_summary}` | 用户用**自己的话**写一句 | `刚签售完坐在回酒店的车上` |
+| **补充细节** `{scene_detail}` | 可选：光线、氛围、是否累 | `夜深了有点困但还想跟你多说两句` |
+
+- 选 **`custom`** 时 **必须**有非空的 `scene_summary`。
+- 未填则 **`preset: none`**，创建后也可用终端写入：  
+  `python tools/manage_state.py set-scene --slug {slug} --preset transit --summary "……"`
+
+**Step 1c（若填写）可与 Step 1b 同一轮汇总确认；跳过则默认无场景。**
+
+---
+
 ## Step 2：物料导入（展示下列选项）
 
 ```

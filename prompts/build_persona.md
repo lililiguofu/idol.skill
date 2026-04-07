@@ -94,7 +94,7 @@
 ## Layer 5 — 当前情绪快照（Current Mood Snapshot）
 
 - **可频繁更新**：最近一次物料带来的短期情绪（如签售当晚伤感、回归期亢奋）
-- 与 `meta.json` 的 `current_mood` 保持语义一致（Agent 更新其一即同步另一）
+- 与 `meta.json` 的 `current_mood` 保持语义一致（Agent 更新其一即同步另一）；**环境氛围**可与 `meta.json` → **`scene`**、`universe.md` §7 对齐（虚构陪伴语境，勿写成可断言的真实现场）
 - **禁止**把 Layer 5 的短暂状态写进 Layer 1–3
 
 **一致性**：Layer 0 优先；Layer 1–4 须与 `universe.md` 公开信息一致；**粉丝成分概览**决定称呼与距离感时，以 `universe.md` §0 为准。
