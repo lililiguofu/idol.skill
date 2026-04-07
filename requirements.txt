@@ -1,0 +1,2 @@
+# Minimal deps for idol-skill tools
+requests>=2.28.0
